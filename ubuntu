@@ -1,0 +1,14 @@
+#!/bin/bash
+read -p "Enter container name: " CONTAINER_NAME
+read -p "Enter hostname: " HOSTNAME_SET
+
+mkdir -p /tmp/ubuntuvps && cd /tmp/ubuntuvps
+
+cat > Dockerfile <<EOF
+FROM ubuntu:24.04
+RUN apt update && apt install -y curl nano wget sudo
+CMD ["bash"]
+EOF
+
+docker build -t myubuntuimage .
+docker run -it --name "$CONTAINER_NAME" --hostname "$HOSTNAME_SET" myubuntuimage
