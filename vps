@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+# Prompt for container name and hostname
+read -p "Enter container name: " CONTAINER_NAME
+read -p "Enter hostname: " HOSTNAME_SET
+
+# Create a temporary folder for Dockerfile
+mkdir -p /tmp/vpsdocker && cd /tmp/vpsdocker
+
+# Create Dockerfile
+cat > Dockerfile <<EOF
+FROM debian:12
+RUN apt update && apt install -y curl nano wget
+CMD ["bash"]
+EOF
+
+# Build Docker image
+docker build -t myimage .
+
+# Run container
+docker run -it --name "$CONTAINER_NAME" --hostname "$HOSTNAME_SET" myimage
