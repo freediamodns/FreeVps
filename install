@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+# Prompt for hostname
+read -p "Enter hostname (root@NAME): " HOSTNAME_SET
+ROOT_PASSWORD="root"
+
+# Set hostname
+hostnamectl set-hostname "$HOSTNAME_SET"
+
+# Install sudo & passwd if missing
+apt update
+apt install -y sudo passwd
+
+# Set root password
+echo "root:${ROOT_PASSWORD}" | chpasswd
+
+# Enable root login in SSH if SSH server exists
+if [ -f /etc/ssh/sshd_config ]; then
+    sed -i 's/^#\?PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+    sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+    systemctl restart ssh || systemctl restart sshd
+fi
+
+echo "================================="
+echo "VPS shell ready!"
+echo "Login: root / ${ROOT_PASSWORD}"
+echo "Hostname: $(hostname)"
+echo "================================="
+bash
