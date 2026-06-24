@@ -1,4 +1,4 @@
-```bash id="p8xvku"
+```bash id="j4fr5o"
 #!/bin/bash
 set -e
 
@@ -76,8 +76,6 @@ RUN apt update && apt install -y \
     python3-pip \
     nodejs \
     npm \
-    mysql-client \
-    redis-tools \
     && apt clean
 
 CMD ["bash"]
@@ -100,8 +98,25 @@ for i in {1..25}; do
 done
 echo ""
 
-docker run -it \
+docker create \
     --name "$CONTAINER_NAME" \
     --hostname "$HOSTNAME_SET" \
-    gorrilacoderz-vps
+    gorrilacoderz-vps >/dev/null
+
+clear
+
+echo "═══════════════════════════════"
+echo "✅ VPS CREATED SUCCESSFULLY!"
+echo "═══════════════════════════════"
+echo "📦 Container : $CONTAINER_NAME"
+echo "💻 Hostname  : $HOSTNAME_SET"
+echo "🖥️ OS        : $OS_NAME"
+echo "═══════════════════════════════"
+echo "🦍 Powered by Gorrila Coderz"
+echo "👍 Like • ⭐ Subscribe • 🚀 Share"
+echo "═══════════════════════════════"
+
+sleep 3
+
+docker start -ai "$CONTAINER_NAME"
 ```
