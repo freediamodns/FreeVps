@@ -1,4 +1,3 @@
-
 #!/bin/bash
 set -e
 
@@ -6,7 +5,28 @@ HOSTNAME_SET=$(echo "R29ycmlsYUNvZGVyeg==" | base64 -d)
 
 show_banner() {
 clear
-printf "\e[38;5;196mGORRILA CODERZ VPS MANAGER\e[0m\n\n"
+
+printf "\e[38;5;196m ██████╗  ██████╗ ██████╗ ██████╗ ██╗██╗      █████╗ \e[0m\n"
+printf "\e[38;5;202m██╔════╝ ██╔═══██╗██╔══██╗██╔══██╗██║██║     ██╔══██╗\e[0m\n"
+printf "\e[38;5;208m██║  ███╗██║   ██║██████╔╝██████╔╝██║██║     ███████║\e[0m\n"
+printf "\e[38;5;214m██║   ██║██║   ██║██╔══██╗██╔══██╗██║██║     ██╔══██║\e[0m\n"
+printf "\e[38;5;220m╚██████╔╝╚██████╔╝██║  ██║██║  ██║██║███████╗██║  ██║\e[0m\n"
+printf "\e[38;5;226m ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚═╝  ╚═╝\e[0m\n"
+
+printf "\n"
+
+printf "\e[38;5;51m ██████╗ ██████╗ ██████╗ ███████╗██████╗ ███████╗\e[0m\n"
+printf "\e[38;5;45m██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔══██╗╚══███╔╝\e[0m\n"
+printf "\e[38;5;39m██║     ██║   ██║██║  ██║█████╗  ██████╔╝  ███╔╝ \e[0m\n"
+printf "\e[38;5;33m██║     ██║   ██║██║  ██║██╔══╝  ██╔══██╗ ███╔╝  \e[0m\n"
+printf "\e[38;5;27m╚██████╗╚██████╔╝██████╔╝███████╗██║  ██║███████╗\e[0m\n"
+printf "\e[38;5;21m ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝\e[0m\n"
+
+echo ""
+echo -e "\e[1;38;5;46m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\e[0m"
+echo -e "\e[1;38;5;226m          🚀 GORRILA CODERZ VPS MANAGER 🚀          \e[0m"
+echo -e "\e[1;38;5;46m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\e[0m"
+echo ""
 }
 
 pause() {
@@ -61,8 +81,10 @@ for i in {1..25}; do
 done
 echo
 
-docker build -t gorrilacoderz-vps . >/dev/null 2>&1
-
+if ! docker image inspect gorrilacoderz-vps >/dev/null 2>&1; then
+    docker build -t gorrilacoderz-vps . >/dev/null 2>&1
+fi
+```bash
 docker create \
   --label gorrilacoderz-vps=true \
   --name "$CONTAINER_NAME" \
@@ -89,7 +111,6 @@ show_banner
 docker ps -a \
 --filter "label=gorrilacoderz-vps=true" \
 --format "Name: {{.Names}} | Status: {{.Status}}"
-
 pause
 }
 
@@ -97,62 +118,36 @@ open_vps() {
 show_banner
 
 mapfile -t CONTAINERS < <(
-docker ps -a \
---filter "label=gorrilacoderz-vps=true" \
---format "{{.Names}}"
+docker ps -a --filter "label=gorrilacoderz-vps=true" --format "{{.Names}}"
 )
 
-if [ ${#CONTAINERS[@]} -eq 0 ]; then
-    echo "No VPS found."
-    pause
-    return
-fi
+[ ${#CONTAINERS[@]} -eq 0 ] && echo "No VPS found." && pause && return
 
-echo "Available VPS:"
 for i in "${!CONTAINERS[@]}"; do
     echo "$((i+1))) ${CONTAINERS[$i]}"
 done
 
 read -p "Select VPS: " CHOICE
 
-INDEX=$((CHOICE-1))
-
-if [ -z "${CONTAINERS[$INDEX]}" ]; then
-    echo "Invalid selection."
-    pause
-    return
-fi
-
-docker start "${CONTAINERS[$INDEX]}" >/dev/null 2>&1 || true
-docker attach "${CONTAINERS[$INDEX]}"
+docker start "${CONTAINERS[$((CHOICE-1))]}" >/dev/null 2>&1 || true
+docker attach "${CONTAINERS[$((CHOICE-1))]}"
 }
 
 stop_vps() {
 show_banner
 
 mapfile -t CONTAINERS < <(
-docker ps \
---filter "label=gorrilacoderz-vps=true" \
---format "{{.Names}}"
+docker ps --filter "label=gorrilacoderz-vps=true" --format "{{.Names}}"
 )
 
-if [ ${#CONTAINERS[@]} -eq 0 ]; then
-    echo "No running VPS found."
-    pause
-    return
-fi
+[ ${#CONTAINERS[@]} -eq 0 ] && echo "No running VPS found." && pause && return
 
 for i in "${!CONTAINERS[@]}"; do
     echo "$((i+1))) ${CONTAINERS[$i]}"
 done
 
 read -p "Select VPS to stop: " CHOICE
-
-INDEX=$((CHOICE-1))
-
-docker stop "${CONTAINERS[$INDEX]}"
-echo "Stopped."
-
+docker stop "${CONTAINERS[$((CHOICE-1))]}"
 pause
 }
 
@@ -160,28 +155,17 @@ delete_vps() {
 show_banner
 
 mapfile -t CONTAINERS < <(
-docker ps -a \
---filter "label=gorrilacoderz-vps=true" \
---format "{{.Names}}"
+docker ps -a --filter "label=gorrilacoderz-vps=true" --format "{{.Names}}"
 )
 
-if [ ${#CONTAINERS[@]} -eq 0 ]; then
-    echo "No VPS found."
-    pause
-    return
-fi
+[ ${#CONTAINERS[@]} -eq 0 ] && echo "No VPS found." && pause && return
 
 for i in "${!CONTAINERS[@]}"; do
     echo "$((i+1))) ${CONTAINERS[$i]}"
 done
 
 read -p "Select VPS to delete: " CHOICE
-
-INDEX=$((CHOICE-1))
-
-docker rm -f "${CONTAINERS[$INDEX]}"
-echo "Deleted."
-
+docker rm -f "${CONTAINERS[$((CHOICE-1))]}"
 pause
 }
 
@@ -208,4 +192,4 @@ case $MENU in
     *) echo "Invalid choice"; sleep 1 ;;
 esac
 done
-```
+
