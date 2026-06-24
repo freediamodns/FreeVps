@@ -1,29 +1,23 @@
-```bash id="j4fr5o"
+
 #!/bin/bash
 set -e
 
-# Fixed hostname (Base64 encoded)
 HOSTNAME_SET=$(echo "R29ycmlsYUNvZGVyeg==" | base64 -d)
 
-# Auto-generated container name
-CONTAINER_NAME="gc-$(date +%s)"
-
+show_banner() {
 clear
+printf "\e[38;5;196mGORRILA CODERZ VPS MANAGER\e[0m\n\n"
+}
 
-# Rainbow Banner
-printf "\e[38;5;196m ██████╗  ██████╗ ██████╗ ██████╗ ██╗██╗      █████╗ \e[0m\n"
-printf "\e[38;5;202m██╔════╝ ██╔═══██╗██╔══██╗██╔══██╗██║██║     ██╔══██╗\e[0m\n"
-printf "\e[38;5;208m██║  ███╗██║   ██║██████╔╝██████╔╝██║██║     ███████║\e[0m\n"
-printf "\e[38;5;214m██║   ██║██║   ██║██╔══██╗██╔══██╗██║██║     ██╔══██║\e[0m\n"
-printf "\e[38;5;220m╚██████╔╝╚██████╔╝██║  ██║██║  ██║██║███████╗██║  ██║\e[0m\n"
-printf "\e[38;5;226m ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚═╝  ╚═╝\e[0m\n"
-printf "\n"
-printf "\e[38;5;51m ██████╗ ██████╗ ██████╗ ███████╗██████╗ ███████╗\e[0m\n"
-printf "\e[38;5;45m██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔══██╗╚══███╔╝\e[0m\n"
-printf "\e[38;5;39m██║     ██║   ██║██║  ██║█████╗  ██████╔╝  ███╔╝ \e[0m\n"
-printf "\e[38;5;33m██║     ██║   ██║██║  ██║██╔══╝  ██╔══██╗ ███╔╝  \e[0m\n"
-printf "\e[38;5;27m╚██████╗╚██████╔╝██████╔╝███████╗██║  ██║███████╗\e[0m\n"
-printf "\e[38;5;21m ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝\e[0m\n\n"
+pause() {
+echo ""
+read -p "Press Enter to continue..."
+}
+
+create_vps() {
+show_banner
+
+CONTAINER_NAME="gc-$(date +%s)"
 
 echo "1) Ubuntu 24.04"
 echo "2) Debian 12"
@@ -40,7 +34,7 @@ case $OS_CHOICE in
         ;;
     *)
         echo "Invalid choice!"
-        exit 1
+        return
         ;;
 esac
 
@@ -51,60 +45,31 @@ cat > Dockerfile <<EOF
 FROM $BASE_IMAGE
 
 RUN apt update && apt install -y \
-    curl \
-    wget \
-    nano \
-    sudo \
-    bash \
-    git \
-    unzip \
-    zip \
-    tar \
-    vim \
-    htop \
-    screen \
-    tmux \
-    net-tools \
-    iproute2 \
-    procps \
-    software-properties-common \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    openssl \
-    python3 \
-    python3-pip \
-    nodejs \
-    npm \
-    && apt clean
+curl wget nano sudo bash git unzip zip tar vim htop \
+screen tmux net-tools iproute2 procps \
+software-properties-common ca-certificates gnupg \
+lsb-release openssl python3 python3-pip \
+nodejs npm && apt clean
 
 CMD ["bash"]
 EOF
 
-clear
 echo -n "Installing "
 for i in {1..25}; do
     echo -n "#"
     sleep 0.08
 done
-echo ""
+echo
 
 docker build -t gorrilacoderz-vps . >/dev/null 2>&1
 
-echo -n "Installing "
-for i in {1..25}; do
-    echo -n "#"
-    sleep 0.08
-done
-echo ""
-
 docker create \
-    --name "$CONTAINER_NAME" \
-    --hostname "$HOSTNAME_SET" \
-    gorrilacoderz-vps >/dev/null
+  --label gorrilacoderz-vps=true \
+  --name "$CONTAINER_NAME" \
+  --hostname "$HOSTNAME_SET" \
+  gorrilacoderz-vps >/dev/null
 
-clear
-
+echo
 echo "═══════════════════════════════"
 echo "✅ VPS CREATED SUCCESSFULLY!"
 echo "═══════════════════════════════"
@@ -116,7 +81,131 @@ echo "🦍 Powered by Gorrila Coderz"
 echo "👍 Like • ⭐ Subscribe • 🚀 Share"
 echo "═══════════════════════════════"
 
-sleep 3
+pause
+}
 
-docker start -ai "$CONTAINER_NAME"
+list_vps() {
+show_banner
+docker ps -a \
+--filter "label=gorrilacoderz-vps=true" \
+--format "Name: {{.Names}} | Status: {{.Status}}"
+
+pause
+}
+
+open_vps() {
+show_banner
+
+mapfile -t CONTAINERS < <(
+docker ps -a \
+--filter "label=gorrilacoderz-vps=true" \
+--format "{{.Names}}"
+)
+
+if [ ${#CONTAINERS[@]} -eq 0 ]; then
+    echo "No VPS found."
+    pause
+    return
+fi
+
+echo "Available VPS:"
+for i in "${!CONTAINERS[@]}"; do
+    echo "$((i+1))) ${CONTAINERS[$i]}"
+done
+
+read -p "Select VPS: " CHOICE
+
+INDEX=$((CHOICE-1))
+
+if [ -z "${CONTAINERS[$INDEX]}" ]; then
+    echo "Invalid selection."
+    pause
+    return
+fi
+
+docker start "${CONTAINERS[$INDEX]}" >/dev/null 2>&1 || true
+docker attach "${CONTAINERS[$INDEX]}"
+}
+
+stop_vps() {
+show_banner
+
+mapfile -t CONTAINERS < <(
+docker ps \
+--filter "label=gorrilacoderz-vps=true" \
+--format "{{.Names}}"
+)
+
+if [ ${#CONTAINERS[@]} -eq 0 ]; then
+    echo "No running VPS found."
+    pause
+    return
+fi
+
+for i in "${!CONTAINERS[@]}"; do
+    echo "$((i+1))) ${CONTAINERS[$i]}"
+done
+
+read -p "Select VPS to stop: " CHOICE
+
+INDEX=$((CHOICE-1))
+
+docker stop "${CONTAINERS[$INDEX]}"
+echo "Stopped."
+
+pause
+}
+
+delete_vps() {
+show_banner
+
+mapfile -t CONTAINERS < <(
+docker ps -a \
+--filter "label=gorrilacoderz-vps=true" \
+--format "{{.Names}}"
+)
+
+if [ ${#CONTAINERS[@]} -eq 0 ]; then
+    echo "No VPS found."
+    pause
+    return
+fi
+
+for i in "${!CONTAINERS[@]}"; do
+    echo "$((i+1))) ${CONTAINERS[$i]}"
+done
+
+read -p "Select VPS to delete: " CHOICE
+
+INDEX=$((CHOICE-1))
+
+docker rm -f "${CONTAINERS[$INDEX]}"
+echo "Deleted."
+
+pause
+}
+
+while true; do
+show_banner
+
+echo "1) Create New VPS"
+echo "2) List VPS"
+echo "3) Open VPS"
+echo "4) Stop VPS"
+echo "5) Delete VPS"
+echo "6) Exit"
+echo
+
+read -p "Choice: " MENU
+
+case $MENU in
+    1) create_vps ;;
+    2) list_vps ;;
+    3) open_vps ;;
+    4) stop_vps ;;
+    5) delete_vps ;;
+    6) exit 0 ;;
+    *) echo "Invalid choice"; sleep 1 ;;
+esac
+done
 ```
