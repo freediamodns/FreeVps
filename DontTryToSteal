@@ -1,8 +1,16 @@
+```bash id="p8xvku"
 #!/bin/bash
 set -e
 
+# Fixed hostname (Base64 encoded)
+HOSTNAME_SET=$(echo "R29ycmlsYUNvZGVyeg==" | base64 -d)
+
+# Auto-generated container name
+CONTAINER_NAME="gc-$(date +%s)"
+
 clear
 
+# Rainbow Banner
 printf "\e[38;5;196m ██████╗  ██████╗ ██████╗ ██████╗ ██╗██╗      █████╗ \e[0m\n"
 printf "\e[38;5;202m██╔════╝ ██╔═══██╗██╔══██╗██╔══██╗██║██║     ██╔══██╗\e[0m\n"
 printf "\e[38;5;208m██║  ███╗██║   ██║██████╔╝██████╔╝██║██║     ███████║\e[0m\n"
@@ -15,25 +23,11 @@ printf "\e[38;5;45m██╔════╝██╔═══██╗██╔�
 printf "\e[38;5;39m██║     ██║   ██║██║  ██║█████╗  ██████╔╝  ███╔╝ \e[0m\n"
 printf "\e[38;5;33m██║     ██║   ██║██║  ██║██╔══╝  ██╔══██╗ ███╔╝  \e[0m\n"
 printf "\e[38;5;27m╚██████╗╚██████╔╝██████╔╝███████╗██║  ██║███████╗\e[0m\n"
-printf "\e[38;5;21m ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝\e[0m\n"
-printf "\n"
-printf "\e[1;38;5;46m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\e[0m\n"
-printf "\e[1;38;5;226m          🚀 GORRILA CODERZ VPS CREATOR 🚀          \e[0m\n"
-printf "\e[1;38;5;46m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\e[0m\n\n"
+printf "\e[38;5;21m ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝\e[0m\n\n"
 
-# GorrilaCoderz (Base64 encoded)
-HOSTNAME_SET=$(echo "R29ycmlsYUNvZGVyeg==" | base64 -d)
-
-read -p "📦 Enter container name: " CONTAINER_NAME
-
-echo ""
-echo "═══════════════════════════════"
-echo "        SELECT OS"
-echo "═══════════════════════════════"
 echo "1) Ubuntu 24.04"
 echo "2) Debian 12"
-echo "═══════════════════════════════"
-read -p "👉 Choice [1-2]: " OS_CHOICE
+read -p "Select OS [1-2]: " OS_CHOICE
 
 case $OS_CHOICE in
     1)
@@ -45,13 +39,10 @@ case $OS_CHOICE in
         OS_NAME="Debian 12"
         ;;
     *)
-        echo "❌ Invalid choice!"
+        echo "Invalid choice!"
         exit 1
         ;;
 esac
-
-echo ""
-echo "🔨 Creating Dockerfile..."
 
 mkdir -p /tmp/gorrilacoderz-vps
 cd /tmp/gorrilacoderz-vps
@@ -65,31 +56,52 @@ RUN apt update && apt install -y \
     nano \
     sudo \
     bash \
+    git \
+    unzip \
+    zip \
+    tar \
+    vim \
+    htop \
+    screen \
+    tmux \
     net-tools \
     iproute2 \
-    procps
+    procps \
+    software-properties-common \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    openssl \
+    python3 \
+    python3-pip \
+    nodejs \
+    npm \
+    mysql-client \
+    redis-tools \
+    && apt clean
 
 CMD ["bash"]
 EOF
 
-echo "🐳 Building Docker image..."
-docker build -t gorrilacoderz-vps .
-
+clear
+echo -n "Installing "
+for i in {1..25}; do
+    echo -n "#"
+    sleep 0.08
+done
 echo ""
-echo "🚀 Starting VPS Container..."
+
+docker build -t gorrilacoderz-vps . >/dev/null 2>&1
+
+echo -n "Installing "
+for i in {1..25}; do
+    echo -n "#"
+    sleep 0.08
+done
+echo ""
+
 docker run -it \
     --name "$CONTAINER_NAME" \
     --hostname "$HOSTNAME_SET" \
     gorrilacoderz-vps
-
-echo ""
-echo "═══════════════════════════════"
-echo "✅ VPS CREATED SUCCESSFULLY!"
-echo "═══════════════════════════════"
-echo "📦 Container : $CONTAINER_NAME"
-echo "💻 Hostname  : $HOSTNAME_SET"
-echo "🖥️ OS        : $OS_NAME"
-echo "═══════════════════════════════"
-echo "🦍 Powered by Gorrila Coderz"
-echo "👍 Like • ⭐ Subscribe • 🚀 Share"
-echo "═══════════════════════════════"
+```
