@@ -1,195 +1,86 @@
 #!/bin/bash
 set -e
 
-HOSTNAME_SET=$(echo "R29ycmlsYUNvZGVyeg==" | base64 -d)
+HOSTNAME_SET=$(printf '%s' "R29ycmlsYUNvZGVyeg==" | base64 -d)
 
 show_banner() {
 clear
-
 printf "\e[38;5;196m ██████╗  ██████╗ ██████╗ ██████╗ ██╗██╗      █████╗ \e[0m\n"
 printf "\e[38;5;202m██╔════╝ ██╔═══██╗██╔══██╗██╔══██╗██║██║     ██╔══██╗\e[0m\n"
 printf "\e[38;5;208m██║  ███╗██║   ██║██████╔╝██████╔╝██║██║     ███████║\e[0m\n"
 printf "\e[38;5;214m██║   ██║██║   ██║██╔══██╗██╔══██╗██║██║     ██╔══██║\e[0m\n"
 printf "\e[38;5;220m╚██████╔╝╚██████╔╝██║  ██║██║  ██║██║███████╗██║  ██║\e[0m\n"
 printf "\e[38;5;226m ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚═╝  ╚═╝\e[0m\n"
-
-printf "\n"
-
-printf "\e[38;5;51m ██████╗ ██████╗ ██████╗ ███████╗██████╗ ███████╗\e[0m\n"
-printf "\e[38;5;45m██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔══██╗╚══███╔╝\e[0m\n"
-printf "\e[38;5;39m██║     ██║   ██║██║  ██║█████╗  ██████╔╝  ███╔╝ \e[0m\n"
-printf "\e[38;5;33m██║     ██║   ██║██║  ██║██╔══╝  ██╔══██╗ ███╔╝  \e[0m\n"
-printf "\e[38;5;27m╚██████╗╚██████╔╝██████╔╝███████╗██║  ██║███████╗\e[0m\n"
-printf "\e[38;5;21m ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝\e[0m\n"
-
-echo ""
-echo -e "\e[1;38;5;46m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\e[0m"
-echo -e "\e[1;38;5;226m          🚀 GORRILA CODERZ VPS MANAGER 🚀          \e[0m"
-echo -e "\e[1;38;5;46m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\e[0m"
-echo ""
+echo
+echo -e "\e[1;38;5;46m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\e[0m"
+echo -e "\e[1;38;5;226m🚀 GORRILA CODERZ VPS MANAGER 🚀\e[0m"
+echo -e "\e[38;5;82m👍 Like • ⭐ Subscribe • 🚀 Share\e[0m"
+echo -e "\e[1;38;5;46m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\e[0m"
+echo
 }
 
-pause() {
-echo ""
-read -p "Press Enter to continue..."
-}
+pause(){ read -rp "Press Enter to continue..."; }
 
-create_vps() {
-show_banner
-
-CONTAINER_NAME="gc-$(date +%s)"
-
-echo "1) Ubuntu 24.04"
-echo "2) Debian 12"
-read -p "Select OS [1-2]: " OS_CHOICE
-
-case $OS_CHOICE in
-    1)
-        BASE_IMAGE="ubuntu:24.04"
-        OS_NAME="Ubuntu 24.04"
-        ;;
-    2)
-        BASE_IMAGE="debian:12"
-        OS_NAME="Debian 12"
-        ;;
-    *)
-        echo "Invalid choice!"
-        return
-        ;;
-esac
-
-mkdir -p /tmp/gorrilacoderz-vps
-cd /tmp/gorrilacoderz-vps
-
+build_image(){
+mkdir -p /tmp/gorrilacoderz-vps && cd /tmp/gorrilacoderz-vps
 cat > Dockerfile <<EOF
-FROM $BASE_IMAGE
-
-RUN apt update && apt install -y \
-curl wget nano sudo bash git unzip zip tar vim htop \
-screen tmux net-tools iproute2 procps \
-software-properties-common ca-certificates gnupg \
-lsb-release openssl python3 python3-pip \
-nodejs npm && apt clean
-
+FROM ${BASE_IMAGE}
+RUN apt update && apt install -y curl wget nano sudo bash git unzip zip tar vim htop screen tmux net-tools iproute2 procps python3 python3-pip nodejs npm ca-certificates && apt clean
 CMD ["bash"]
 EOF
-
-echo -n "Installing "
-for i in {1..25}; do
-    echo -n "#"
-    sleep 0.08
-done
-echo
-
 if ! docker image inspect gorrilacoderz-vps >/dev/null 2>&1; then
-    docker build -t gorrilacoderz-vps . >/dev/null 2>&1
+  echo -n "Installing "
+  for i in $(seq 1 25); do printf "#"; sleep 0.08; done
+  echo
+  docker build -t gorrilacoderz-vps . >/dev/null
 fi
-```bash
-docker create \
-  --label gorrilacoderz-vps=true \
-  --name "$CONTAINER_NAME" \
-  --hostname "$HOSTNAME_SET" \
-  gorrilacoderz-vps >/dev/null
-
-echo
-echo "═══════════════════════════════"
-echo "✅ VPS CREATED SUCCESSFULLY!"
-echo "═══════════════════════════════"
-echo "📦 Container : $CONTAINER_NAME"
-echo "💻 Hostname  : $HOSTNAME_SET"
-echo "🖥️ OS        : $OS_NAME"
-echo "═══════════════════════════════"
-echo "🦍 Powered by Gorrila Coderz"
-echo "👍 Like • ⭐ Subscribe • 🚀 Share"
-echo "═══════════════════════════════"
-
-pause
 }
 
-list_vps() {
-show_banner
-docker ps -a \
---filter "label=gorrilacoderz-vps=true" \
---format "Name: {{.Names}} | Status: {{.Status}}"
-pause
-}
-
-open_vps() {
-show_banner
-
-mapfile -t CONTAINERS < <(
-docker ps -a --filter "label=gorrilacoderz-vps=true" --format "{{.Names}}"
-)
-
-[ ${#CONTAINERS[@]} -eq 0 ] && echo "No VPS found." && pause && return
-
-for i in "${!CONTAINERS[@]}"; do
-    echo "$((i+1))) ${CONTAINERS[$i]}"
-done
-
-read -p "Select VPS: " CHOICE
-
-docker start "${CONTAINERS[$((CHOICE-1))]}" >/dev/null 2>&1 || true
-docker attach "${CONTAINERS[$((CHOICE-1))]}"
-}
-
-stop_vps() {
-show_banner
-
-mapfile -t CONTAINERS < <(
-docker ps --filter "label=gorrilacoderz-vps=true" --format "{{.Names}}"
-)
-
-[ ${#CONTAINERS[@]} -eq 0 ] && echo "No running VPS found." && pause && return
-
-for i in "${!CONTAINERS[@]}"; do
-    echo "$((i+1))) ${CONTAINERS[$i]}"
-done
-
-read -p "Select VPS to stop: " CHOICE
-docker stop "${CONTAINERS[$((CHOICE-1))]}"
-pause
-}
-
-delete_vps() {
-show_banner
-
-mapfile -t CONTAINERS < <(
-docker ps -a --filter "label=gorrilacoderz-vps=true" --format "{{.Names}}"
-)
-
-[ ${#CONTAINERS[@]} -eq 0 ] && echo "No VPS found." && pause && return
-
-for i in "${!CONTAINERS[@]}"; do
-    echo "$((i+1))) ${CONTAINERS[$i]}"
-done
-
-read -p "Select VPS to delete: " CHOICE
-docker rm -f "${CONTAINERS[$((CHOICE-1))]}"
-pause
+select_container(){
+mapfile -t CONTAINERS < <(docker ps -a --filter label=gorrilacoderz-vps=true --format "{{.Names}}")
+[ ${#CONTAINERS[@]} -eq 0 ] && echo "No VPS found." && return 1
+for i in "${!CONTAINERS[@]}"; do echo "$((i+1))) ${CONTAINERS[$i]}"; done
+read -rp "Select: " n
+SEL="${CONTAINERS[$((n-1))]}"
+[ -z "$SEL" ] && return 1
+return 0
 }
 
 while true; do
 show_banner
-
-echo "1) Create New VPS"
+echo "1) Create VPS"
 echo "2) List VPS"
 echo "3) Open VPS"
 echo "4) Stop VPS"
 echo "5) Delete VPS"
 echo "6) Exit"
-echo
-
-read -p "Choice: " MENU
-
-case $MENU in
-    1) create_vps ;;
-    2) list_vps ;;
-    3) open_vps ;;
-    4) stop_vps ;;
-    5) delete_vps ;;
-    6) exit 0 ;;
-    *) echo "Invalid choice"; sleep 1 ;;
+read -rp "Choice: " c
+case "$c" in
+1)
+ echo "1) Ubuntu 24.04"; echo "2) Debian 12"
+ read -rp "OS: " o
+ [ "$o" = 1 ] && BASE_IMAGE=ubuntu:24.04 || BASE_IMAGE=debian:12
+ build_image
+ NAME="gc-$(date +%s)"
+ docker create --label gorrilacoderz-vps=true --name "$NAME" --hostname "$HOSTNAME_SET" gorrilacoderz-vps >/dev/null
+ echo "Container: $NAME"
+ echo "Hostname : $HOSTNAME_SET"
+ docker start -ai "$NAME"
+ ;;
+2)
+ docker ps -a --filter label=gorrilacoderz-vps=true --format "Name: {{.Names}} | {{.Status}}"
+ pause;;
+3)
+ select_container && docker start "$SEL" >/dev/null 2>&1 || true
+ [ -n "$SEL" ] && docker attach "$SEL"
+ ;;
+4)
+ select_container && docker stop "$SEL"
+ pause;;
+5)
+ select_container && docker rm -f "$SEL"
+ pause;;
+6) exit 0;;
 esac
 done
-
+'''
