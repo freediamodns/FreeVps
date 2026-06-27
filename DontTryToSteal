@@ -34,7 +34,7 @@ mkdir -p /tmp/gorrilacoderz-vps
 cd /tmp/gorrilacoderz-vps
 cat > Dockerfile <<EOF
 FROM ${BASE_IMAGE}
-RUN apt update && apt install -y curl wget nano sudo bash git unzip zip tar vim htop screen tmux net-tools iproute2 procps docker python3 python3-pip nodejs npm && apt clean
+RUN apt update && apt install -y curl wget nano sudo bash git unzip zip tar vim htop screen tmux net-tools iproute2 procps docker.io python3 python3-pip nodejs npm && apt clean
 CMD ["bash"]
 EOF
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
