@@ -1,0 +1,156 @@
+#!/bin/bash
+
+GREEN="\e[1;32m"
+RED="\e[1;31m"
+CYAN="\e[1;36m"
+YELLOW="\e[1;33m"
+MAGENTA="\e[1;35m"
+WHITE="\e[1;37m"
+GRAY="\e[1;90m"
+RESET="\e[0m"
+
+clear
+tput civis
+
+banner() {
+echo -e "${MAGENTA}"
+cat << "EOF"
+
+                                                
+ ,----.                        ,--.,--.         
+'  .-./    ,---. ,--.--.,--.--.`--'|  | ,--,--. 
+|  | .---.| .-. ||  .--'|  .--',--.|  |' ,-.  | 
+'  '--'  |' '-' '|  |   |  |   |  ||  |\ '-'  | 
+ `------'  `---' `--'   `--'   `--'`--' `--`--' 
+                                                
+        G O R R I L A   C O D E R Z
+
+EOF
+echo -e "${RESET}"
+}
+
+type_line() {
+    text="$1"
+    color="$2"
+
+    printf "$color"
+
+    for ((i=0;i<${#text};i++)); do
+        printf "%s" "${text:$i:1}"
+        sleep 0.01
+    done
+
+    printf "${RESET}\n"
+}
+
+random_log() {
+logs=(
+"Checking network latency..."
+"Synchronizing runtime..."
+"Negotiating secure session..."
+"Validating package signatures..."
+"Reading configuration..."
+"Loading kernel modules..."
+"Initializing sandbox..."
+"Resolving dependencies..."
+"Allocating memory..."
+"Performing integrity checks..."
+"Preparing runtime..."
+"Scanning environment..."
+)
+
+echo -ne "\r${GRAY}[*] ${logs[$RANDOM % ${#logs[@]}]}${RESET}      "
+}
+
+progress() {
+
+text="$1"
+
+total=$((RANDOM%10+1))
+steps=$((RANDOM%40+40))
+
+delay=$(awk "BEGIN{printf \"%.3f\", $total/$steps}")
+
+for ((i=0;i<=steps;i++)); do
+
+percent=$((i*100/steps))
+filled=$((percent/2))
+empty=$((50-filled))
+
+printf "\r${CYAN}%-35s${RESET} [" "$text"
+
+for ((j=0;j<filled;j++)); do
+printf "${GREEN}█${RESET}"
+done
+
+for ((j=0;j<empty;j++)); do
+printf " "
+done
+
+printf "] %3d%%" "$percent"
+
+if (( RANDOM % 18 == 0 )); then
+random_log
+fi
+
+sleep "$delay"
+
+done
+
+printf "\n"
+
+}
+
+banner
+
+type_line "[*] Initializing terminal..." "$WHITE"
+sleep 0.3
+type_line "[*] Loading runtime..." "$WHITE"
+sleep 0.3
+type_line "[*] Environment detected: Linux x86_64" "$WHITE"
+sleep 0.4
+
+echo
+
+steps=(
+"[01/10] Connecting to host"
+"[02/10] Authenticating session"
+"[03/10] Negotiating encrypted channel"
+"[04/10] Downloading runtime"
+"[05/10] Verifying package signatures"
+"[06/10] Extracting filesystem"
+"[07/10] Mounting overlay filesystem"
+"[08/10] Starting background services"
+"[09/10] Running health checks"
+"[10/10] Finalizing environment"
+)
+
+for s in "${steps[@]}"; do
+progress "$s"
+echo
+done
+
+echo -e "${GREEN}[✓] Runtime initialized successfully${RESET}"
+echo -e "${GREEN}[✓] Container environment ready${RESET}"
+echo -e "${GREEN}[✓] Powered by Gorrila Coderz${RESET}"
+
+echo
+echo -e "${MAGENTA}═══════════════════════════════════════════════${RESET}"
+echo -e "${YELLOW}Launching container...${RESET}"
+echo -e "${MAGENTA}═══════════════════════════════════════════════${RESET}"
+
+HOSTNAME="gorrilacoderz-vm"
+CONTAINER="gc-$(date +%s)-$RANDOM"
+
+CID=$(docker run -dit \
+    --hostname "$HOSTNAME" \
+    --name "$CONTAINER" \
+    -w /root \
+    ubuntu:24.04 \
+    bash)
+
+sleep $((RANDOM%3+1))
+
+tput cnorm
+
+exec docker exec -it -w /root "$CONTAINER" bash
