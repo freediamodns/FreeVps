@@ -60,7 +60,7 @@ EOF
     printf "\e[1;35m────────────────────────────────────────────────────────────────────────────────────\e[0m\n"
 
     printf "\e[1;36m Hostname      \e[0m : %s\n" "$(hostname)"
-    printf "\e[1;36m User          \e[0m : %s\n" "$USER"
+    printf "\e[1;36m User          \e[0m : %s\n" "$(whoami)"
     printf "\e[1;36m Kernel        \e[0m : %s\n" "$(uname -r)"
     printf "\e[1;36m Architecture  \e[0m : %s\n" "$(uname -m)"
     printf "\e[1;36m Date          \e[0m : %s\n" "$(date '+%d %b %Y')"
