@@ -72,10 +72,6 @@ EOF
     printf "\e[1;32m                  GORRILA CODERZ VM MANAGER v5.0\e[0m\n"
     printf "\e[1;90m               Enterprise Virtualization Platform\e[0m\n"
     echo
-}
-EOF
-    echo
-}
 
 # Function to display colored output
 print_status() {
